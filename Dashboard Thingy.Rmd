@@ -1,0 +1,72 @@
+---
+title: "Things"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(DT)
+library(dimple)
+library(GGally)
+library(plotly)
+library(ggpubr)
+
+deney <- read.csv("deney169.csv", header = T)
+
+deney1 <- deney %>% 
+  dplyr::select(Grup, Toplam, Cinsiyet, Günlükstres, Depresifdüþünce, Ýntihar, ÞuanRahat)
+```
+
+## Column {data-width=350}
+
+### Density plots
+
+```{r}
+
+asd <- ggdensity(deney1, x = "Toplam", color = "Grup", fill = "Grup", alpha = .3)
+ggplotly(asd)
+
+
+```
+
+## Column {data-width=350}
+
+
+### Correlation Matrix
+
+```{r}
+ggcorr(deney1, label = T)
+
+
+```
+
+### Boxplot
+
+```{r}
+
+ch <- ggboxplot(deney, "Grup", "Toplam", add = c("jitter", "mean"), color = "Grup") + 
+  stat_compare_means(method = "anova", label.y = 75) + 
+  theme(legend.position = "none") +
+  labs(y = "KaygÄ± DÃ¼zeyi") +  
+  annotate("text",x=1,y=18,label="n=39") + 
+  annotate("text",x=2,y=18,label="n=42") + 
+  annotate("text",x=3,y=18,label="n=49") + 
+  annotate("text",x=4,y=18,label="n=41") 
+
+ggplotly(ch)
+```
+
+
+## Column {data-width=300}
+
+### Table
+
+```{r}
+datatable(deney1, rownames = F, 
+          class = "hover cell-border stripe", 
+          options = list(searching = F,
+                         lengthChange = F,
+                         pageLength = 18))
+```
+
+
