@@ -1,0 +1,173 @@
+---
+title: "chapter_2"
+author: "IO"
+date: "2022-12-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+```
+
+# Basic UI
+
+## Inputs
+
+1. Her input'un bir inputId'si vardır ve server bu input'a input$name ile ulaşır.
+2. Her input'un bir label'ı vardır ve bu UI kısmında insanların okuması için oluşturulan bir etikettir.
+3. Her input'un bir value'su vardır ve bu input için default value'yu oluşturur.
+
+`sliderInput(inputId = "min", label = "Limit (minimum)", min = 0, max = 100, value = 50)`
+
+### Text Inputs
+
+Az metinler için `textInput()`, paragraflar için `textAreaInput()`, şifreler için `passwordInput()` kullanılır.
+
+```{r}
+ui <- fluidPage(
+  
+  textInput(inputId = "short",
+            label = "Gimme a short text"),
+  textAreaInput(inputId = "long",
+                label = "Gimme a long one"),
+  passwordInput(inputId = "pass",
+                label = "Hit me with a password"),
+  
+  textOutput("shorty"),
+  textOutput("longy")
+)
+
+server <- function(input, output, session) {
+  
+  output$shorty <- renderText({
+    input$short
+  })
+  
+  output$longy <- renderText({
+    input$long
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+### Numeric Inputs
+
+`numericInput()`: Text box içine sayı yazmak için.
+`sliderInput()`: Slider ile belli bir aralıktaki sayılardan sayı seçmek için. Eğer "range" argumanını kullanırsan tek bir sayı yerine bir aralık seçebilirsin.
+
+```{r}
+ui <- fluidPage(
+  
+  numericInput(inputId = "numeric", label = "Bir sayı yazmaz mısın?",
+               min = 0, max = 100, value = 50),
+  
+  sliderInput(inputId = "slider", label = "Bir sayı seçmez misin?",
+              min = 20, max = 120, value = 60),
+  
+  sliderInput(inputId = "range", label = "Bir sayı aralığı seçmez misin?",
+              min = 20, max = 120, value = c(40,80)),
+  
+  
+  textOutput("numerically"),
+  textOutput("sliderly"),
+  textOutput("rangely")
+)
+
+
+server <- function(input, output, session) {
+  
+  output$numerically <- renderText({
+    paste0("Your written number is: ", input$numeric)
+  })
+  
+  output$sliderly <- renderText({
+    paste0("Your selected number is: ", input$slider)
+  })
+  
+  output$rangely <- renderText({
+    paste0("Your selected number range is: ", input$rangely)
+  })
+}
+
+
+shinyApp(ui, server)
+```
+
+### Date Inputs
+
+`dateInput()`: Tek bir gün seçmek için.
+`dateRangeInput()`: Bir tarih aralığı seçmek için.
+
+Bu ikisi için de "daysofweekdisabled" gibi argumanrla gün seçimini iptal edebiliriz.
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Tarihler"),
+  
+  dateInput(inputId = "tarih", label = "Bir tarih girmez misin?"),
+  dateRangeInput(inputId = "dateRange", label = "Bir tarih aralığı girmez misin?"),
+  
+  textOutput("tarihly"),
+  textOutput("dateRangely")
+)
+
+server <- function(input, output, session) {
+  
+  output$tarihly <- renderText({
+    paste0("Seçtiğiniz tarih: ", input$tarih)
+  })
+  
+  output$dateRangely <- renderText({
+    input$dateRangely
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
