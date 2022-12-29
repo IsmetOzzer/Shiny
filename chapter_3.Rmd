@@ -1,0 +1,17 @@
+---
+title: "3 Basic Reactivity"
+author: "IO"
+date: "2022-12-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+```
+
+# Reactive Programming
+
+UI herkes için aynı görünmek durumundayken, server her kullanıcı için ayrı bir şekil almalı. Yani kullanıcı A slider değişikliği yaparsa bunu B kullanıcısının görmememsi lazım. 
+
+With imperative code you say “Make me a sandwich”8. With declarative code you say “Ensure there is a sandwich in the refrigerator whenever I look inside of it”.

@@ -101,7 +101,7 @@ shinyApp(ui, server)
 `dateInput()`: Tek bir gün seçmek için.
 `dateRangeInput()`: Bir tarih aralığı seçmek için.
 
-Bu ikisi için de "daysofweekdisabled" gibi argumanrla gün seçimini iptal edebiliriz.
+Bu ikisi için de "daysofweekdisabled" gibi argumanlarla gün seçimini iptal edebiliriz.
 
 ```{r}
 ui <- fluidPage(
@@ -129,23 +129,310 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+### Limited Choices
 
+`selectInput()`: Drop down menu. "multiple = TRUE" ile birden çok seçenek seçilebilir.
+`radioButtons()`: Buttons to choose from.
+`checkboxInput()`: One buttons to check or not check.
+`checkboxGroupInput()`: Buttons to choose from, allowing multiple selections.
 
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Limited Choices"),
+  
+  selectInput(inputId = "dropDown", label = "Select from me",
+              choices = rownames(mtcars), multiple = TRUE),
+  radioButtons(inputId = "radio", label = "Click one of them",
+               choices = rownames(mtcars)),
+  checkboxInput(inputId = "check", label = "Check me",
+                value = TRUE),
+  checkboxGroupInput("checkGroup", "Check me out group",
+                     choices = colnames(mtcars)),
+  
+  textOutput("droppy"),
+  textOutput("radioO")
+  
+)
 
+server <- function(input, output, session) {
+  
+  output$droppy <- renderText({
+    paste0("What you've chosen is: ", input$dropDown)
+  })
+  
+  output$radioO <- renderText({
+    paste0("What you've clicked is: ", input$radio)
+  })
+  
+}
 
+shinyApp(ui, server)
+```
 
+### File Uploads
 
+`fileInput()`: Dosya yükleme input'u. Server kısmında özel bir etkileşimi var ilerde göreceeğimiz.
 
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Dosya Yükleme"),
+  
+  fileInput(inputId = "file", label = "Toss a coin for your witcher"),
 
+  textOutput("filely")
+  
+)
 
+server <- function(input, output, session) {
+  
+  output$filely <- renderTable({
+    
+    summary(input$file)
+  })
+  
+}
 
+shinyApp(ui, server)
+```
 
+### Action Buttons
 
+`actionButton()`: Tıklanabilir bir tuş ile bir özelliği aktive edip kapatmaya yarar.
+`actionLink()`:
 
+Bu ikisi de `observeEvent()` ve `eventReactive()` gibi reactive ifadeler ile beraber kullanılır.
 
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Tıklanabilir Tuşlar"),
+  
+  actionButton(inputId = "click", label = "Tıklasana!",
+               class = c("btn-danger", "btn-lg")),
+  actionButton("drink", "Come have a drink with me!",
+               icon = icon("cocktail"),
+               class = "btn-info"),
+  
+  verbatimTextOutput("outcome")
+  
+)
 
+server <- function(input, output, session) {
+  
+  output$outcome <- renderPrint({
+    paste(input$click[1], input$drink[1])
+  })
+}
 
+shinyApp(ui, server)
+```
 
+## Exercises
+
+1.
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Creating a textInput with a placeholder"),
+  
+  fluidRow(
+    
+    textInput("text", "Write me up baby",
+              placeholder = "Whatchu gonna write?")
+    
+  ),
+  
+  fluidRow(
+    
+    textOutput("texty")
+    
+  )
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$texty <- renderText({
+    
+    paste0("Whatchu really want really really want is: ", input$text)
+    
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+2.
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Slider with dates on em"),
+  
+  sliderInput("date", "Slide them dates up baby",
+              min = as.Date("2000-01-01"), max = as.Date("2022-01-01"), value = as.Date("2010-03-01"))
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+
+3.
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Slider with ticks and animation"),
+  
+  sliderInput("slide", "slide EM SXLAUNTS",
+              min = 0, max = 100, value = 50, step = 5,
+              ticks = TRUE,
+              animate = TRUE)
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+
+## Outputs
+
+UI kısmında bir placeholder görevini görür ve server kısmında doldurulmayı beklerler.
+
+Her placeholder output'a server kısmında `output$Id` şeklinde erişilir ve bir render fonksiyonu içinde kullanılması gerekir. Temel olarak text, table, ve plot olarak üç çeşidi vardır.
+
+### Text Output
+
+`textOutput()`: normal bir text çıktısı için kullanılır.
+`verbatimTextOutput()`: Bir consola (kutu içine) çıktı almak için kullanılır.
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Text Ouput"),
+  
+  textOutput("text"),
+  verbatimTextOutput("code")
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$text <- renderText({
+    "Hallo!"
+  })
+  
+  output$code <- renderPrint({
+    summary(1:10)
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+Aslında renderlerin içine yazılan {} ifadesi birden fazla kod satırı yazılınca kullanılır.
+
+`renderText()` çıktıyı bir string içine verirken `renderPrint()` çıktıyı console'daki print() fonksiyonu sonucunda verir ve genellikle `verbatimTextOutput()` ile kullanılır. 
+
+```{r}
+ui <- fluidPage(
+  
+  textOutput("text"),
+  verbatimTextOutput("verbat")
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$text <- renderText("HALLO!")
+  output$verbat <- renderPrint("HALLO!")
+  
+}
+
+shinyApp(ui, server)
+```
+
+### Table Ouput
+
+`tableOutput()` statik ve ufak (model çıktısı) tablolar için `renderTable()` çıktısı ile kullanılır.
+`dataTableOutput()` dinamik ve bütün veriseti gibi tablolar için `renderDataTable()` ile kullanılır.
+
+```{r}
+ui <- fluidPage(
+  
+  # Title
+  titlePanel("Table Output"),
+  
+  # Outputs
+  tableOutput("static"),
+  dataTableOutput("dynamic")
+)
+
+server <- function(input, output, session) {
+  
+  output$static <- renderTable({
+    head(datarium::stress$score)
+  })
+  
+  output$dynamic <- renderDataTable({
+    head(datarium::stress)
+  })
+}
+
+shinyApp(ui, server)
+```
+
+### Plots 
+
+`plotOutput()` ile UI kısmında placeholder yaratabilir, bunu `renderPlot()` ile doldurabiliriz. 
+
+```{r}
+ui <- fluidPage(
+  
+  titlePanel("Plots"),
+  
+  fluidRow(
+    
+    selectInput("x", "On the X axis",
+                choices = colnames(datarium::stress)),
+    
+    selectInput("y", "On the Y axis",
+                choices = colnames(datarium::stress))
+    
+  ),
+  
+  plotOutput("scatter")
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$scatter <- renderPlot({
+    
+    plot(datarium::stress[[input$x]], datarium::stress[[input$y]])
+    abline(lm(datarium::stress[[input$y]] ~ datarium::stress[[input$x]]))
+    
+  })
+}
+
+shinyApp(ui, server)
+```
+
+```{r}
+
+```
 
 
 
